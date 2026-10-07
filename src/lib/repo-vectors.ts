@@ -1,4 +1,6 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { db } from '@/db';
+import { createLibsqlVectorStore } from '@/lib/providers/libsql-vector-store';
 
 import {
   denyVectorizeStorageGrowth,
@@ -105,6 +107,9 @@ export function createRepoVectorStore(index: VectorizeIndexLike, budget: RepoVec
 }
 
 export function repoVectors() {
+  if (process.env.LIBSQL_URL) {
+    return createLibsqlVectorStore(db) as any;
+  }
   const { env } = getCloudflareContext();
   const index = (env as unknown as { REPO_VECTORS?: VectorizeIndexLike }).REPO_VECTORS;
   if (!index) throw new Error('Cloudflare Vectorize binding REPO_VECTORS is unavailable');

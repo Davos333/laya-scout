@@ -1,0 +1,134 @@
+{
+  "needs": [
+    {
+      "id": "ai-inference-runtime",
+      "title": "Local or cost-efficient inference runtime",
+      "desired_outcome": "Run models locally, at the edge, or through a managed gateway with predictable cost",
+      "candidates": [
+        { "repo": "ollama/ollama", "expected_fit": "high", "notes": "Standard local LLM engine" },
+        { "repo": "ggerganov/llama.cpp", "expected_fit": "high", "notes": "Core inference library" },
+        { "repo": "ml-explore/mlx", "expected_fit": "high", "notes": "Apple Silicon optimized inference" },
+        { "repo": "vllm-project/vllm", "expected_fit": "high", "notes": "High-throughput serving" },
+        { "repo": "langchain-ai/langchain", "expected_fit": "low", "notes": "Orchestration, not an inference engine" },
+        { "repo": "facebookresearch/react", "expected_fit": "low", "notes": "Frontend framework, completely unrelated" }
+      ]
+    },
+    {
+      "id": "edge-serverless-primitives",
+      "title": "Serverless edge persistence and compute primitives",
+      "desired_outcome": "Adopt proven patterns for D1 migrations, wrangler config, and Worker observability",
+      "candidates": [
+        { "repo": "cloudflare/workers-sdk", "expected_fit": "high", "notes": "Core Cloudflare Workers SDK" },
+        { "repo": "honojs/hono", "expected_fit": "high", "notes": "Edge-optimized web framework" },
+        { "repo": "lukeed/worktop", "expected_fit": "medium", "notes": "Edge framework (less active)" },
+        { "repo": "opennextjs/opennextjs-cloudflare", "expected_fit": "high", "notes": "Next.js on Cloudflare adapter" },
+        { "repo": "vercel/next.js", "expected_fit": "low", "notes": "Framework, but vercel-centric primitives" },
+        { "repo": "expressjs/express", "expected_fit": "low", "notes": "Node.js framework, not edge-native" }
+      ]
+    },
+    {
+      "id": "native-macos-distribution",
+      "title": "Native macOS app packaging and distribution",
+      "desired_outcome": "Automate signed builds, notarization, and Sparkle/Updater release pipeline",
+      "candidates": [
+        { "repo": "sparkle-project/Sparkle", "expected_fit": "high", "notes": "Standard macOS auto-updater" },
+        { "repo": "tauri-apps/tauri", "expected_fit": "high", "notes": "Cross-platform native apps" },
+        { "repo": "electron/electron", "expected_fit": "medium", "notes": "Cross-platform but heavy, often avoided if native is specified" },
+        { "repo": "gonuts/gon", "expected_fit": "high", "notes": "macOS CLI notarization tool" },
+        { "repo": "facebook/react-native", "expected_fit": "low", "notes": "Mobile focused, macOS support is secondary" },
+        { "repo": "twbs/bootstrap", "expected_fit": "low", "notes": "CSS framework, unrelated" }
+      ]
+    },
+    {
+      "id": "semantic-retrieval-pipeline",
+      "title": "Embedding and semantic retrieval pipeline",
+      "desired_outcome": "Use a stable embedding model, vector store, and reranking strategy with versioning",
+      "candidates": [
+        { "repo": "chroma-core/chroma", "expected_fit": "high", "notes": "Local/hosted vector DB" },
+        { "repo": "qdrant/qdrant", "expected_fit": "high", "notes": "High performance vector engine" },
+        { "repo": "UKPLab/sentence-transformers", "expected_fit": "high", "notes": "Standard embedding models" },
+        { "repo": "milvus-io/milvus", "expected_fit": "medium", "notes": "Enterprise vector DB, maybe too heavy" },
+        { "repo": "elastic/elasticsearch", "expected_fit": "low", "notes": "Full text search, vector is bolted on" },
+        { "repo": "lodash/lodash", "expected_fit": "low", "notes": "Utility library" }
+      ]
+    },
+    {
+      "id": "evaluation-harness",
+      "title": "Reproducible evaluation and benchmark harness",
+      "desired_outcome": "Run deterministic benchmarks with regression detection and fixture versioning",
+      "candidates": [
+        { "repo": "promptfoo/promptfoo", "expected_fit": "high", "notes": "LLM evaluation harness" },
+        { "repo": "hegelai/prompttools", "expected_fit": "high", "notes": "Prompt testing and evaluation" },
+        { "repo": "mit-han-lab/lm-evaluation-harness", "expected_fit": "high", "notes": "EleutherAI evaluation harness" },
+        { "repo": "jestjs/jest", "expected_fit": "medium", "notes": "General testing, not specifically AI eval" },
+        { "repo": "cypress-io/cypress", "expected_fit": "low", "notes": "E2E web testing" },
+        { "repo": "tensorflow/tensorflow", "expected_fit": "low", "notes": "ML framework, not an eval harness" }
+      ]
+    },
+    {
+      "id": "auth-session-management",
+      "title": "Authentication and session management",
+      "desired_outcome": "Use a maintained auth library with minimal scope and secure session handling",
+      "candidates": [
+        { "repo": "nextauthjs/next-auth", "expected_fit": "high", "notes": "Standard Next.js auth" },
+        { "repo": "lucia-auth/lucia", "expected_fit": "high", "notes": "Session-based auth library" },
+        { "repo": "supertokens/supertokens-core", "expected_fit": "high", "notes": "Open source auth provider" },
+        { "repo": "panva/node-openid-client", "expected_fit": "high", "notes": "OIDC client" },
+        { "repo": "jaredhanson/passport", "expected_fit": "medium", "notes": "Classic Node auth, but ecosystem is fragmented" },
+        { "repo": "moment/moment", "expected_fit": "low", "notes": "Date library" }
+      ]
+    },
+    {
+      "id": "marketing-content-pipeline",
+      "title": "Marketing site and content publishing pipeline",
+      "desired_outcome": "Adopt a static-site generator with automated sitemap, OG images, and publishing checks",
+      "candidates": [
+        { "repo": "withastro/astro", "expected_fit": "high", "notes": "Modern static site generator" },
+        { "repo": "gohugoio/hugo", "expected_fit": "high", "notes": "Fast static site generator" },
+        { "repo": "11ty/eleventy", "expected_fit": "high", "notes": "Flexible static site generator" },
+        { "repo": "vercel/next.js", "expected_fit": "medium", "notes": "Can do static, but often overkill" },
+        { "repo": "facebook/docusaurus", "expected_fit": "medium", "notes": "Docs focused, less marketing" },
+        { "repo": "nestjs/nest", "expected_fit": "low", "notes": "Backend framework" }
+      ]
+    },
+    {
+      "id": "observability-logging",
+      "title": "Application observability and structured logging",
+      "desired_outcome": "Adopt structured logging, error tracking, and performance monitoring with low overhead",
+      "candidates": [
+        { "repo": "pinojs/pino", "expected_fit": "high", "notes": "Fast structured logger" },
+        { "repo": "getsentry/sentry-javascript", "expected_fit": "high", "notes": "Error tracking client" },
+        { "repo": "open-telemetry/opentelemetry-js", "expected_fit": "high", "notes": "Standard observability instrumentation" },
+        { "repo": "winstonjs/winston", "expected_fit": "high", "notes": "Flexible structured logger" },
+        { "repo": "grafana/loki", "expected_fit": "medium", "notes": "Log aggregation server, not just a library" },
+        { "repo": "chalk/chalk", "expected_fit": "low", "notes": "Terminal string styling" }
+      ]
+    },
+    {
+      "id": "ci-cd-automation",
+      "title": "CI/CD pipeline automation",
+      "desired_outcome": "Automate build, test, and deploy with SHA-tagged releases and green-main policy",
+      "candidates": [
+        { "repo": "nektos/act", "expected_fit": "high", "notes": "Run GitHub Actions locally" },
+        { "repo": "semantic-release/semantic-release", "expected_fit": "high", "notes": "Automated versioning and releases" },
+        { "repo": "changesets/changesets", "expected_fit": "high", "notes": "Monorepo versioning" },
+        { "repo": "tj-actions/changed-files", "expected_fit": "high", "notes": "GitHub Action utility" },
+        { "repo": "jenkinsci/jenkins", "expected_fit": "low", "notes": "Heavyweight CI server" },
+        { "repo": "prettier/prettier", "expected_fit": "low", "notes": "Code formatter" }
+      ]
+    },
+    {
+      "id": "data-migration-management",
+      "title": "Database schema migration management",
+      "desired_outcome": "Use ordered, additive SQL migrations with local and remote apply paths",
+      "candidates": [
+        { "repo": "drizzle-team/drizzle-orm", "expected_fit": "high", "notes": "ORM with excellent migration tooling" },
+        { "repo": "prisma/prisma", "expected_fit": "high", "notes": "ORM with migration management" },
+        { "repo": "graphile/migrate", "expected_fit": "high", "notes": "Opinionated Postgres migrations" },
+        { "repo": "flyway/flyway", "expected_fit": "medium", "notes": "Java-based but standard migration tool" },
+        { "repo": "typeorm/typeorm", "expected_fit": "medium", "notes": "Older ORM, migration system is fragile" },
+        { "repo": "facebook/react", "expected_fit": "low", "notes": "Frontend framework" }
+      ]
+    }
+  ]
+}

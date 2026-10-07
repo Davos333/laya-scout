@@ -25,6 +25,8 @@ import { buildRepoEmbeddingText, generateEmbeddings } from '@/lib/embeddings';
 import type { ProjectRecommendationRepo, ProjectToolSignal } from '@/lib/project-recommendations';
 import { repoVectors, type RepoVectorMatch } from '@/lib/repo-vectors';
 import { ftsSearchQuery, rrfFuse } from '@/lib/search';
+import { layaPredict } from '@/lib/providers/laya-decision';
+import pLimit from 'p-limit';
 
 // ---------------------------------------------------------------------------
 // Constants and bounds
@@ -1570,25 +1572,112 @@ interface ClassifyAndRankParams {
 async function classifyAndRank(params: ClassifyAndRankParams): Promise<NeedCandidate[]> {
   const { project, need, candidateIds, deps, candidatesPerNeed } = params;
   const candidates = await hydrateCandidates(candidateIds, project.id, deps.database);
-  return candidates
+  
+  const initialCandidates = candidates
     .map((repo) => {
       const result = classifyCandidate(project, need, repo);
       return {
-        repoId: repo.id,
-        fullName: repo.fullName,
-        htmlUrl: repo.htmlUrl,
-        description: repo.description,
-        language: repo.language,
-        stargazersCount: repo.stargazersCount,
-        archived: repo.archived,
-        topics: repo.topics,
-        tools: repo.tools,
-        classification: result.classification,
-        confidence: result.confidence,
-        evidence: result.evidence,
-        score: result.score,
+        repo,
+        ...result,
       };
     })
+    .sort((a, b) => b.score - a.score);
+
+  // Staged gating: run Laya screening concurrently on the top N candidates
+  const screenedCount = Math.max(candidatesPerNeed, 15);
+  const candidatesToScreen = initialCandidates.slice(0, screenedCount);
+  const candidatesToSkip = initialCandidates.slice(screenedCount);
+
+  const limit = pLimit(5);
+  const screenedCandidates = await Promise.all(
+    candidatesToScreen.map((c) => limit(async () => {
+      const state = {
+        project_intent: project.name,
+        need: need.title,
+        outcome: need.desiredOutcome,
+        candidate_name: c.repo.fullName,
+        candidate_desc: (c.repo.description ?? '').slice(0, 150),
+        candidate_topics: c.repo.topics.slice(0, 5).join(', '),
+      };
+      
+      try {
+        const response = await layaPredict({
+          state,
+          questions: {
+            solves_need: {
+              type: 'noul',
+              instructions: 'Does this repository address the stated need and desired outcome?'
+            }
+          }
+        });
+        
+        const layaScore = response.answers.solves_need?.noul ?? 0.5;
+        let updatedScore = c.score;
+        const updatedEvidence = [...c.evidence];
+        const provenanceTag = response.routing?.model ?? 'laya-v1';
+        
+        if (layaScore >= 0.7) {
+          updatedScore += 20;
+          updatedEvidence.push(`Screening [${provenanceTag}]: High confidence (${Math.round(layaScore * 100)}%)`);
+        } else if (layaScore <= 0.3) {
+          updatedScore -= 20;
+          updatedEvidence.push(`Screening [${provenanceTag}]: Low confidence (${Math.round(layaScore * 100)}%)`);
+        } else {
+          updatedEvidence.push(`Screening [${provenanceTag}]: Uncertain confidence (${Math.round(layaScore * 100)}%)`);
+        }
+        
+        return {
+          repoId: c.repo.id,
+          fullName: c.repo.fullName,
+          htmlUrl: c.repo.htmlUrl,
+          description: c.repo.description,
+          language: c.repo.language,
+          stargazersCount: c.repo.stargazersCount,
+          archived: c.repo.archived,
+          topics: c.repo.topics,
+          tools: c.repo.tools,
+          classification: c.classification,
+          confidence: c.confidence,
+          evidence: updatedEvidence,
+          score: updatedScore,
+        };
+      } catch (err) {
+        return {
+          repoId: c.repo.id,
+          fullName: c.repo.fullName,
+          htmlUrl: c.repo.htmlUrl,
+          description: c.repo.description,
+          language: c.repo.language,
+          stargazersCount: c.repo.stargazersCount,
+          archived: c.repo.archived,
+          topics: c.repo.topics,
+          tools: c.repo.tools,
+          classification: c.classification,
+          confidence: c.confidence,
+          evidence: c.evidence,
+          score: c.score,
+        };
+      }
+    }))
+  );
+
+  const skippedCandidates = candidatesToSkip.map((c) => ({
+    repoId: c.repo.id,
+    fullName: c.repo.fullName,
+    htmlUrl: c.repo.htmlUrl,
+    description: c.repo.description,
+    language: c.repo.language,
+    stargazersCount: c.repo.stargazersCount,
+    archived: c.repo.archived,
+    topics: c.repo.topics,
+    tools: c.repo.tools,
+    classification: c.classification,
+    confidence: c.confidence,
+    evidence: c.evidence,
+    score: c.score,
+  }));
+
+  return [...screenedCandidates, ...skippedCandidates]
     .sort((a, b) => b.score - a.score)
     .slice(0, candidatesPerNeed);
 }

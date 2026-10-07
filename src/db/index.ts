@@ -1,10 +1,15 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 import { createD1Client, type D1DatabaseLike, type DbClient } from './client';
+import { getLibsqlClient } from '@/lib/providers/libsql-client';
 
 let _client: DbClient | undefined;
 function getClient(): DbClient {
   if (!_client) {
+    if (process.env.LIBSQL_URL) {
+      _client = getLibsqlClient(process.env.LIBSQL_URL, process.env.LIBSQL_AUTH_TOKEN);
+      return _client;
+    }
     const { env } = getCloudflareContext();
     const database = (env as { DB?: D1DatabaseLike }).DB;
     if (!database) throw new Error('Cloudflare D1 binding DB is unavailable');

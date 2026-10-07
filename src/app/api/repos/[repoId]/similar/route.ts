@@ -113,7 +113,7 @@ export async function GET(
                FROM user_repos ur
                JOIN repos r ON r.id = ur.repo_id
                WHERE ur.user_id = ? AND r.id IN (${placeholders})`;
-        return db.execute({ sql, args: scope === 'global' ? chunk : [userId!, ...chunk] });
+        return db.execute({ sql, args: (scope === 'global' ? chunk : [userId!, ...chunk]) as import('@/db/client').InValue[] });
       })
     );
     const hydratedRows = hydratedResults.flatMap((result) => result.rows);
@@ -132,7 +132,7 @@ export async function GET(
       .map((id) => repoMap.get(id))
       .filter((r): r is NonNullable<typeof r> => r != null)
       .map((row) => {
-        const dist = distMap.get(row.id as number) ?? 1;
+        const dist = (distMap.get(row.id as number) as number) ?? 1;
         const similarity = 1 - dist;
         const topics = parseTopics(row.topics);
         const sharedTopics = topics.filter((topic) => seedTopics.has(topic)).length;

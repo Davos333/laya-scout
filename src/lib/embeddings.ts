@@ -1,5 +1,6 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { embedMany } from 'ai';
+import { embedOllama } from '@/lib/providers/ollama-embed';
 
 /**
  * Embedding dimension contract.
@@ -243,13 +244,12 @@ function normalizeEmbeddingDimensions(vec: number[]): number[] {
   return vec;
 }
 
-/**
- * Generate embeddings for one or more texts.
- * Managed Worker calls use the private Free AI service binding; an explicitly
- * configured direct endpoint remains available to Node CLI scripts.
- */
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
+
+  if (process.env.USE_OLLAMA_EMBED === 'true' || !process.env.AI_BASE_URL) {
+    return embedOllama(texts, process.env.OLLAMA_URL, process.env.OLLAMA_MODEL);
+  }
 
   const gateway = await getFreeAiBinding();
   if (gateway) {
