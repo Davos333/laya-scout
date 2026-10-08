@@ -1521,7 +1521,7 @@ interface RetrieveCandidatesParams {
   deps: NeedDrivenIntelligenceDependencies;
 }
 
-async function retrieveCandidatesForNeed(
+export async function retrieveCandidatesForNeed(
   params: RetrieveCandidatesParams
 ): Promise<CandidateRetrievalResult> {
   const { need, project, projectConstraintsHash, catalogGeneration, deps } = params;
@@ -1569,7 +1569,7 @@ interface ClassifyAndRankParams {
   candidatesPerNeed: number;
 }
 
-async function classifyAndRank(params: ClassifyAndRankParams): Promise<NeedCandidate[]> {
+export async function classifyAndRank(params: ClassifyAndRankParams): Promise<NeedCandidate[]> {
   const { project, need, candidateIds, deps, candidatesPerNeed } = params;
   const candidates = await hydrateCandidates(candidateIds, project.id, deps.database);
   

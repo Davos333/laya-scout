@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpRight, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { ArrowUpRight, ThumbsDown, ThumbsUp, BrainCircuit } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -136,12 +136,35 @@ export function ProjectRecommendationCard({
           {recommendation.description ?? 'No repository description is available.'}
         </p>
         <ul className="space-y-1.5 text-sm">
-          {recommendation.evidence.map((item) => (
-            <li key={item} className="flex gap-2">
-              <span className="mt-2 size-1 shrink-0 rounded-full bg-primary" />
-              <span>{item}</span>
-            </li>
-          ))}
+          {recommendation.evidence.map((item) => {
+            const isLaya = item.startsWith('Screening [');
+            if (isLaya) {
+              const match = item.match(/Screening \[(.*?)\]: (.*)/);
+              if (match) {
+                const [_, model, decision] = match;
+                return (
+                  <li
+                    key={item}
+                    className="flex gap-2 items-start mt-2 bg-blue-50/50 dark:bg-blue-950/20 p-2.5 rounded-md border border-blue-100 dark:border-blue-900/50"
+                  >
+                    <BrainCircuit className="mt-0.5 size-3.5 shrink-0 text-blue-500" />
+                    <div>
+                      <p className="font-medium text-xs text-blue-700 dark:text-blue-400 mb-0.5">
+                        LAIYA Evaluation ({model})
+                      </p>
+                      <p className="text-muted-foreground text-xs leading-relaxed">{decision}</p>
+                    </div>
+                  </li>
+                );
+              }
+            }
+            return (
+              <li key={item} className="flex gap-2">
+                <span className="mt-2 size-1 shrink-0 rounded-full bg-primary" />
+                <span>{item}</span>
+              </li>
+            );
+          })}
         </ul>
         <RecommendationFeedback kind="repository" rank={rank} retrievalMode={retrievalMode} />
       </CardContent>
